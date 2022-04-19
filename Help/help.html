@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<style>
+  div.bottonControl {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 120px;
+  border: 3px solid gray;
+  border-radius: 5px;
+}
+  .titleDiv {
+    background-image: linear-gradient(to right, tomato, chocolate, darkorange, yellow );    
+    text-align: center;
+    padding: 80px;
+    border: 10px outset orange;
+    border-radius: 25px;
+  }
+  body {
+  font-family: Arial, sans-serif;
+}
+.main {
+    background-color:rgba(186, 133, 43, 0.05);
+    border-radius: 15px;
+    height:100%;
+    width:80%;
+    float:left;
+}
+.content {
+  display: block;
+  height:100%;
+  width:200px;
+  float:left;
+  background-color:rgba(118, 33, 33, 0.25);
+  border-radius: 15px;
+  border: 5px solid orange;
+}
+.topic {
+  overflow: hidden;
+  background-color: #333;
+  border-radius: 5px;
+}
+
+/* Style the topic links */
+.topic a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change color on hover */
+.topic a:hover {
+  background-color: #ddd;
+  color: black;
+}
+  </style>
+  
+  </head>
+<html lang="en">
+  <head>
+    <title>Here is a Help doc</title>
+  </head>
+  <body>
+    <div class="topic">
+      <a href="#">EN</a>
+      <a href="https://github.com/kerlive/SQMediaPlayer">About</a>
+    </div>
+
+	<p id="help">Here is SQMedia Help document.</p>
+	<div class="titleDiv">
+    <h2>SQMedia Help document</h2>
+    <p>version 0.1.0</p>
+  </div>
+  
+  <div id="MyContent" class="content">
+    <p>Here is content space</p>
+    <a href="#">Link1</a>
+    <a href="#">link2</a>
+  </div>
+
+  <div id="MyMain" class="main"></div>
+
+    
+	
+  <div class="bottonControl">
+    <button onClick="location.href='#Top'" type="button">Back to top of page</button>
+    <button id= "ShowButton" onclick="contrentControl()">Hide Content</button>
+    </div>
+  <script>
+function contrentControl() {
+var custDiv = document.getElementById("MyContent");
+var custDiv2 = document.getElementById("MyMain")
+if (custDiv.style.display === "none") {
+custDiv.style.display = "block";
+custDiv2.style.width = "80%";
+document.querySelector('#ShowButton').innerText = 'Hide Content';
+} 
+else{
+custDiv.style.display = "none";
+custDiv2.style.width = "100%";
+document.querySelector('#ShowButton').innerText = 'Show Content';
+}
+}
+
+!function(){
+function n(n,e,t){
+return n.getAttribute(e)||t
+}
+function e(n){
+return document.getElementsByTagName(n)
+}
+function t(){
+var t=e("script"),o=t.length,i=t[o-1];
+return{l:o,z:n(i,"zIndex",-1),o:n(i,"opacity",.5),c:n(i,"color","0,0,0"),n:n(i,"count",233)}
+}
+function o(){
+a=m.width=window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth,
+c=m.height=window.innerHeight||document.documentElement.clientHeight||document.body.clientHeight
+}
+function i(){
+r.clearRect(0,0,a,c);
+var n,e,t,o,m,l;
+s.forEach(function(i,x){
+for(i.x+=i.xa,i.y+=i.ya,i.xa*=i.x>a||i.x<0?-1:1,i.ya*=i.y>c||i.y<0?-1:1,r.fillRect(i.x-.5,i.y-.5,1,1),e=x+1;e<u.length;e++)n=u[e],
+null!==n.x&&null!==n.y&&(o=i.x-n.x,m=i.y-n.y,
+l=o*o+m*m,l<n.max&&(n===y&&l>=n.max/2&&(i.x-=.03*o,i.y-=.03*m),
+t=(n.max-l)/n.max,r.beginPath(),r.lineWidth=t/2,r.strokeStyle="rgba("+d.c+","+(t+.2)+")",r.moveTo(i.x,i.y),r.lineTo(n.x,n.y),r.stroke()))
+}),
+x(i)
+}
+var a,c,u,m=document.createElement("canvas"),
+d=t(),l="c_n"+d.l,r=m.getContext("2d"),
+x=window.requestAnimationFrame||window.webkitRequestAnimationFrame||window.mozRequestAnimationFrame||window.oRequestAnimationFrame||window.msRequestAnimationFrame||
+function(n){
+window.setTimeout(n,1e3/45)
+},
+w=Math.random,y={x:null,y:null,max:2e4};m.id=l,m.style.cssText="position:fixed;top:0;left:0;z-index:"+d.z+";opacity:"+d.o,e("body")[0].appendChild(m),o(),window.οnresize=o,
+window.οnmοusemοve=function(n){
+n=n||window.event,y.x=n.clientX,y.y=n.clientY
+},
+window.οnmοuseοut=function(){
+y.x=null,y.y=null
+};
+for(var s=[],f=0;d.n>f;f++){
+var h=w()*a,g=w()*c,v=2*w()-1,p=2*w()-1;s.push({x:h,y:g,xa:v,ya:p,max:6e3})
+}
+u=s.concat([y]),
+setTimeout(function(){i()},100)
+}();
+
+  </script>
+  </body>
+</html>
