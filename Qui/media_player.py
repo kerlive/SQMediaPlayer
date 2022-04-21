@@ -1,4 +1,4 @@
-# PyQt5 media player
+# PyQt5 Media player
 #code by kevin
 __author__ = "Kevin Chan"
 __copyright__ = "Copyright (C) 2022 Kevin Chan"
@@ -26,7 +26,7 @@ from PyQt5 import QtCore, QtGui, uic
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
 
 ui_path = os.path.dirname(os.path.abspath(__file__))
-form_1, base_1 = uic.loadUiType(os.path.join(ui_path,"SQMP.ui"))
+form_1, base_1 = uic.loadUiType(os.path.join(ui_path,"SQMedia.ui"))
 
 class Main(base_1, form_1):
     def __init__(self):
@@ -34,16 +34,17 @@ class Main(base_1, form_1):
         self.setupUi(self)
         
         self.player = QMediaPlayer()
+        self.player.setVideoOutput(self.videoWidget)
         #set can not minisize for trayicon
         self.setWindowFlags(QtCore.Qt.Dialog|QtCore.Qt.WindowStaysOnTopHint)
         self.setWhatsThis("Any you want to know in help.html")
 
         self.setFixedSize(730,500)
         self.sizecontrol = 0
-        self.setWindowIcon(QtGui.QIcon(':/Icon/OrangeChocolateCut_SQMP.ico'))
+        self.setWindowIcon(QtGui.QIcon(':/Icon/Orange_SQMP.ico'))
         # Player control panel
 
-        self.player.setVideoOutput(self.videoWidget)
+        
         self.PlayButton.clicked.connect(self.media_play)
         self.pauseButton.clicked.connect(self.media_pause)
         self.muteButton.clicked.connect(self.volumeMute)
@@ -102,7 +103,7 @@ class Main(base_1, form_1):
         #QTrayIcon
         QApplication.setQuitOnLastWindowClosed(False)
 
-        icon = QtGui.QIcon(":/Icon/OrangeChocolateCut_SQMP.ico")
+        icon = QtGui.QIcon(":/Icon/Orange_SQMP.ico")
         self.trayIcon = QSystemTrayIcon()
         self.trayIcon.setIcon(icon)
         self.trayIcon.setVisible(True)
