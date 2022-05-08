@@ -182,15 +182,16 @@
      <string>Full</string>
     </property>
    </widget>
-   <widget class="QVideoWidget" name="videoWidget" native="true">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>420</width>
-      <height>380</height>
+      <width>431</width>
+      <height>381</height>
      </rect>
     </property>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
    </widget>
   </widget>
   <widget class="QGroupBox" name="groupBox_2">
@@ -263,14 +264,6 @@
    </property>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QVideoWidget</class>
-   <extends>QWidget</extends>
-   <header>PyQt5.QtMultimediaWidgets</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="../UIresource.qrc"/>
  </resources>

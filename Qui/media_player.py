@@ -24,6 +24,7 @@ else:
 from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, uic
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent, QMediaPlaylist
+from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 ui_path = os.path.dirname(os.path.abspath(__file__))
 form_1, base_1 = uic.loadUiType(os.path.join(ui_path,"SQMedia.ui"))
@@ -34,16 +35,32 @@ class Main(base_1, form_1):
         self.setupUi(self)
         
         self.player = QMediaPlayer()
+        
+        self.videoWidget = QVideoWidget()
+        self.verticalLayout.addWidget(self.videoWidget)
+
         self.player.setVideoOutput(self.videoWidget)
         #set can not minisize for trayicon
-        self.setWindowFlags(QtCore.Qt.Dialog|QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWhatsThis("Any you want to know in help.html")
 
         self.setFixedSize(730,500)
         self.sizecontrol = 0
         self.setWindowIcon(QtGui.QIcon(':/Icon/Orange_SQMP.ico'))
-        # Player control panel
 
+        # Player shortcut
+        self.shortcutFull = QShortcut(self)
+        self.shortcutFull.setKey(QtGui.QKeySequence('F2'))
+        self.shortcutFull.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutFull.activated.connect(self.full_screen)
+
+        self.shortcutPause = QShortcut(self)
+        self.shortcutPause.setKey(QtGui.QKeySequence('Space'))
+        self.shortcutPause.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutPause.activated.connect(self.media_pause)
+
+
+        # Player control panel
         
         self.PlayButton.clicked.connect(self.media_play)
         self.pauseButton.clicked.connect(self.media_pause)
@@ -56,13 +73,14 @@ class Main(base_1, form_1):
         self.addButton.clicked.connect(self.MediaAdd)
         self.delButton.clicked.connect(self.Media_del)
         self.listWidget.itemClicked.connect(self.Media_add)
+        self.listWidget.itemDoubleClicked.connect(self.click_play)
         self.loopButton.clicked.connect(self.loop_control)
         self.looplistButton.clicked.connect(self.list_charge)
         self.skipbackwardButton.clicked.connect(self.skip_backward)
         self.skipforwardButton.clicked.connect(self.skip_forward)
         self.listcontrolButton.clicked.connect(self.list_control)
         self.scrollButton.clicked.connect(self.scroll_plane)
-        #self.fullscreenButton.clicked.connect(self.full_screen)
+        self.fullscreenButton.clicked.connect(self.full_screen)
 
         # loop signal
         self.loop = 0
@@ -91,6 +109,8 @@ class Main(base_1, form_1):
         self.skipbackwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipBackward))
         self.skipforwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipForward))
         self.listcontrolButton.setIcon(self.style().standardIcon(QStyle.SP_ToolBarVerticalExtensionButton))
+
+
 
         # Icon change signal
         self.pause = 0
@@ -130,8 +150,17 @@ class Main(base_1, form_1):
         self.trayIcon.setContextMenu(menu)
 
         self.anotherCall()
-   # def full_screen(self):
-       
+
+    def click_play(self):
+        self.Media_add()
+        self.media_play()
+
+    def full_screen(self):
+        if self.videoWidget.isFullScreen() == True:
+            self.videoWidget.setFullScreen(False)
+        else:
+            self.videoWidget.setFullScreen(True)
+ 
 
     def scroll_plane(self):
         if self.sizecontrol == 0 :
