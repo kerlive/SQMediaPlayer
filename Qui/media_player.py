@@ -5,7 +5,7 @@ __copyright__ = "Copyright (C) 2022 Kevin Chan"
 __license__ = "GPL-3.0"
 __version__ = "0.1.0"
 
-import os, sys
+import os, sys, random
 import datetime
 from multiprocessing import shared_memory
 key = "SQMediaPlayer"
@@ -29,6 +29,78 @@ from PyQt5.QtMultimediaWidgets import QVideoWidget
 ui_path = os.path.dirname(os.path.abspath(__file__))
 form_1, base_1 = uic.loadUiType(os.path.join(ui_path,"SQMedia.ui"))
 
+class Star(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+        self.timer = QtCore.QTimer(self)
+        self.timer.start(1000)
+        self.timer.timeout.connect(self.loadMain)
+        self.flash = QtCore.QTimer(self)
+        self.flash.start(30)
+        self.flash.timeout.connect(self.update)
+
+        self.sec = 0
+        self.line = 0
+        self.star = 1000
+        self.pointSize = 1
+        self.sizeControl = -1
+
+    def loadMain(self):
+        if self.sec == 3 :
+            self.main = Main()
+            self.main.show()
+            self.close()
+            self.timer.stop()
+            self.flash.stop()
+        self.sec = self.sec+1
+                
+    def initUI(self):
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setGeometry(1000, 600, 500, 300)
+        self.setWindowTitle('App Name')
+
+    def paintEvent(self, event) -> None:
+        qp = QtGui.QPainter()
+
+        qp.begin(self)
+        self.draw_points(event, qp)
+        qp.end()
+
+    def draw_points(self, event, qp):
+
+        pen = QtGui.QPen(QtGui.QColor(255,random.randrange(255),80))
+        pen.setWidth(self.pointSize)
+        qp.setPen(pen)
+
+        size = self.size()
+        self.star = self.star - 10
+        self.sizeControl = self.sizeControl * -1 
+        self.pointSize = self.pointSize + 1 + self.sizeControl*3
+
+
+        for i in range(self.star):
+            x = random.randint(1, size.width()-1)
+            y = random.randint(1, size.height()-1)
+            qp.drawPoint(x, y)
+        self.line = self.line + 1 
+
+        qp.setPen(QtGui.QPen(QtGui.QColor(255,127,80), self.line, QtCore.Qt.DashLine))
+
+        gradient = QtGui.QLinearGradient(QtCore.QPoint(150, 50),QtCore.QPoint(200, 100))
+        gradient.setColorAt(0,QtGui.QColor(184,134,11,110))
+        gradient.setColorAt(1,QtGui.QColor(255,127,80,911))
+
+        qp.setBrush(QtGui.QBrush(gradient))
+
+        qp.drawEllipse(int(size.width()/4), int(size.height()/4), int(size.width()/2), int(size.height()/2))
+        qp.setFont(QtGui.QFont("Arial", 16))
+        qp.drawText(event.rect(),QtCore.Qt.AlignCenter,"SQMedia Player")
+
 class Main(base_1, form_1):
     def __init__(self):
         super(base_1, self).__init__()
@@ -37,28 +109,63 @@ class Main(base_1, form_1):
         self.player = QMediaPlayer()
         
         self.videoWidget = QVideoWidget()
-        self.verticalLayout.addWidget(self.videoWidget)
-
+        self.videoLayout.addWidget(self.videoWidget)
         self.player.setVideoOutput(self.videoWidget)
+
+        self.videoWidget.installEventFilter(self)
+
+        # Layout
+        self.setLayout(self.allinLayout)
+        self.groupBox.setMinimumSize(451, 90)
+        self.groupBox.setFixedHeight(90)
+        self.groupBox_2.setFixedWidth(241)
+
+        self.videoWidget.setMinimumSize(451, 381)
+
+
         #set can not minisize for trayicon
         self.setWindowFlags(QtCore.Qt.Dialog)
         self.setWhatsThis("Any you want to know in help.html")
 
-        self.setFixedSize(730,500)
+
         self.sizecontrol = 0
         self.setWindowIcon(QtGui.QIcon(':/Icon/Orange_SQMP.ico'))
 
         # Player shortcut
         self.shortcutFull = QShortcut(self)
-        self.shortcutFull.setKey(QtGui.QKeySequence('F2'))
+        self.shortcutFull.setKey(QtGui.QKeySequence('Ctrl+Shift+F'))
         self.shortcutFull.setContext(QtCore.Qt.ApplicationShortcut)
         self.shortcutFull.activated.connect(self.full_screen)
+
+        self.shortcutExFu = QShortcut(self)
+        self.shortcutExFu.setKey(QtGui.QKeySequence('Escape'))
+        self.shortcutExFu.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutExFu.activated.connect(self.exc_fullScreen)
 
         self.shortcutPause = QShortcut(self)
         self.shortcutPause.setKey(QtGui.QKeySequence('Space'))
         self.shortcutPause.setContext(QtCore.Qt.ApplicationShortcut)
         self.shortcutPause.activated.connect(self.media_pause)
 
+        self.shortcutForward = QShortcut(self)
+        self.shortcutForward.setKey(QtGui.QKeySequence('Right'))
+        self.shortcutForward.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutForward.activated.connect(self.move_forward)
+
+        self.shortcutBackward = QShortcut(self)
+        self.shortcutBackward.setKey(QtGui.QKeySequence('Left'))
+        self.shortcutBackward.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutBackward.activated.connect(self.move_backward)
+
+        self.shortcutSkipNext = QShortcut(self)
+        self.shortcutSkipNext.setKey(QtGui.QKeySequence('Shift+Right'))
+        self.shortcutSkipNext.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutSkipNext.activated.connect(self.skip_forward)
+
+        self.shortcutSkipReload = QShortcut(self)
+        self.shortcutSkipReload.setKey(QtGui.QKeySequence('Shift+Left'))
+        self.shortcutSkipReload.setContext(QtCore.Qt.ApplicationShortcut)
+        self.shortcutSkipReload.activated.connect(self.skip_backward)
 
         # Player control panel
         
@@ -70,10 +177,10 @@ class Main(base_1, form_1):
         self.horizontalSlider.sliderReleased.connect(self.slider_moved)
         self.seekforwardButton.clicked.connect(self.move_forward)
         self.seekbackwardButton.clicked.connect(self.move_backward)
-        self.addButton.clicked.connect(self.MediaAdd)
+        self.addButton.clicked.connect(self.listAdd)
         self.delButton.clicked.connect(self.Media_del)
         self.listWidget.itemClicked.connect(self.Media_add)
-        self.listWidget.itemDoubleClicked.connect(self.click_play)
+        self.listWidget.itemDoubleClicked.connect(self.media_play)
         self.loopButton.clicked.connect(self.loop_control)
         self.looplistButton.clicked.connect(self.list_charge)
         self.skipbackwardButton.clicked.connect(self.skip_backward)
@@ -96,12 +203,12 @@ class Main(base_1, form_1):
 
         # Set Button Icon to QtStandardIcon
 
-        self.scrollButton.setIcon(self.style().standardIcon(QStyle.SP_ArrowBack))
+        self.scrollButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogListView))
         self.PlayButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
         self.muteButton.setIcon(self.style().standardIcon(QStyle.SP_MediaVolume))
         self.pauseButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
         self.loopButton.setIcon(self.style().standardIcon(QStyle.SP_BrowserReload))
-        self.looplistButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogDetailedView))
+        self.looplistButton.setIcon(self.style().standardIcon(QStyle.SP_DriveCDIcon))
         self.addButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogNewFolder))
         self.delButton.setIcon(self.style().standardIcon(QStyle.SP_DialogDiscardButton))
         self.seekbackwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
@@ -109,6 +216,7 @@ class Main(base_1, form_1):
         self.skipbackwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipBackward))
         self.skipforwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipForward))
         self.listcontrolButton.setIcon(self.style().standardIcon(QStyle.SP_ToolBarVerticalExtensionButton))
+    
 
 
 
@@ -133,44 +241,61 @@ class Main(base_1, form_1):
         menu = QMenu()
         
         
-        show = QAction("Pause",self)
-        show.triggered.connect(self.media_pause)
-        menu.addAction(show)
-        show = QAction("Reload",self)
-        show.triggered.connect(self.skip_backward)
-        menu.addAction(show)
-        hide = QAction("Next",self)
-        hide.triggered.connect(self.skip_forward)
-        menu.addAction(hide)
+        pause = QAction("Pause",self)
+        pause.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
+        pause.triggered.connect(self.media_pause)
+        menu.addAction(pause)
+
+        reload = QAction("Reload",self)
+        reload.triggered.connect(self.skip_backward)
+        reload.setIcon(self.style().standardIcon(QStyle.SP_BrowserReload))
+        menu.addAction(reload)
+
+        next = QAction("Next",self)
+        next.triggered.connect(self.skip_forward)
+        next.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipForward))
+        menu.addAction(next)
         
         quit = QAction("Quit",self)
         quit.triggered.connect(self.trayicon_quit)
+        quit.setIcon(self.style().standardIcon(QStyle.SP_BrowserStop))
         menu.addAction(quit)
 
         self.trayIcon.setContextMenu(menu)
 
         self.anotherCall()
 
-    def click_play(self):
-        self.Media_add()
-        self.media_play()
+    def eventFilter(self, object, event):
+
+        if object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonPress:
+            self.media_pause()
+        
+        elif object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonDblClick:
+            self.full_screen()
+            
+        return True
+        
 
     def full_screen(self):
         if self.videoWidget.isFullScreen() == True:
             self.videoWidget.setFullScreen(False)
         else:
             self.videoWidget.setFullScreen(True)
+    def exc_fullScreen(self):
+        if self.videoWidget.isFullScreen() == True:
+            self.videoWidget.setFullScreen(False)
  
 
     def scroll_plane(self):
         if self.sizecontrol == 0 :
             self.sizecontrol = 1
-            self.setFixedSize(480,500)
-            self.scrollButton.setIcon(self.style().standardIcon(QStyle.SP_ArrowForward))
+            self.groupBox_2.hide()
+            
+            self.scrollButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogDetailedView))
         else:
             self.sizecontrol = 0
-            self.setFixedSize(730,500)
-            self.scrollButton.setIcon(self.style().standardIcon(QStyle.SP_ArrowBack))
+            self.groupBox_2.show()
+            self.scrollButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogListView))
         
     def anotherCall(self):
         cTimer = QtCore.QTimer(self)
@@ -285,11 +410,12 @@ class Main(base_1, form_1):
             self.setWindowTitle("NO Media select in List")
         else:
             name = self.listWidget.currentItem().text()
-            QtCore.QFile.remove("./Media/"+name)
+            Dpath = os.path.dirname(os.path.abspath(__name__))+"\Media/"+name
+            os.remove(Dpath)
             self.listWidget.clear()
             self.list_Media()
 
-    def MediaAdd(self):
+    def listAdd(self):
         ADD = QFileDialog()
         MFile = ADD.getOpenFileName(self,"Add New Media", "","Media Files(*.mp4 *.avi *.mkv *.mov *.wmv *.flv)")
         Mname = os.path.split(MFile[0])

@@ -5,7 +5,7 @@ import UIresource_rc
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    demo = Main()
+    demo = Star()
     demo.show()
     
     sys.exit(app.exec_())
