@@ -59,10 +59,17 @@ class Star(QWidget):
         self.sec = self.sec+1
                 
     def initUI(self):
+        
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
-        self.setGeometry(1000, 600, 500, 300)
-        self.setWindowTitle('App Name')
+        self.setGeometry(0, 0, 500, 300)
+        self.setWindowTitle('SQMedia Player')
+
+        # change position to center of main display
+        qtRectangle = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRectangle.moveCenter(centerPoint)
+        self.move(qtRectangle.topLeft())
 
     def paintEvent(self, event) -> None:
         qp = QtGui.QPainter()
