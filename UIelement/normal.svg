@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   version="1.1"
+   id="svg5"
+   inkscape:export-filename="C:\Users\ChenZ\Desktop\normal.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   sodipodi:docname="normal.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     inkscape:snap-page="true"
+     inkscape:snap-object-midpoints="false"
+     inkscape:snap-bbox="false"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:zoom="20.125"
+     inkscape:cx="13.416149"
+     inkscape:cy="15.975155"
+     inkscape:window-width="1653"
+     inkscape:window-height="998"
+     inkscape:window-x="343"
+     inkscape:window-y="331"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="fill:none;stroke-width:1;stroke:#ffb380;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path846"
+       cx="16"
+       cy="15.52"
+       r="15" />
+    <path
+       id="path1454"
+       style="color:#000000;mix-blend-mode:normal;fill:#80e5ff;stroke:none;-inkscape-stroke:none"
+       d="m 16.000977,9.2851558 -0.707032,0.7070312 -8.958984,8.957031 0.7070312,0.707032 -0.7070312,0.707031 0.7070312,0.707031 8.9589848,-8.957031 8.957031,8.957031 0.707031,-0.707031 -0.707031,-0.707031 0.707031,-0.707032 -8.957031,-8.957031 z"
+       transform="matrix(1.1357723,0,0,1.1357723,-2.1723574,-2.0607164)" />
+  </g>
+</svg>

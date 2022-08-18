@@ -43,19 +43,6 @@
         <property name="title">
          <string>Player</string>
         </property>
-        <widget class="QPushButton" name="PlayButton">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>30</y>
-           <width>51</width>
-           <height>41</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Play</string>
-         </property>
-        </widget>
         <widget class="QPushButton" name="muteButton">
          <property name="geometry">
           <rect>
@@ -111,9 +98,9 @@
         <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
-           <x>80</x>
+           <x>10</x>
            <y>50</y>
-           <width>148</width>
+           <width>229</width>
            <height>25</height>
           </rect>
          </property>
@@ -129,6 +116,13 @@
            <widget class="QPushButton" name="seekbackwardButton">
             <property name="text">
              <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="PlayButton">
+            <property name="text">
+             <string>Play</string>
             </property>
            </widget>
           </item>
@@ -177,8 +171,8 @@
         <widget class="QPushButton" name="fullscreenButton">
          <property name="geometry">
           <rect>
-           <x>230</x>
-           <y>60</y>
+           <x>10</x>
+           <y>20</y>
            <width>31</width>
            <height>21</height>
           </rect>
@@ -191,7 +185,20 @@
          <property name="geometry">
           <rect>
            <x>405</x>
-           <y>35</y>
+           <y>30</y>
+           <width>21</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="topButton">
+         <property name="geometry">
+          <rect>
+           <x>430</x>
+           <y>30</y>
            <width>21</width>
            <height>21</height>
           </rect>
@@ -209,49 +216,46 @@
       <property name="title">
        <string>Media list</string>
       </property>
-      <widget class="QListWidget" name="listWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>221</width>
-         <height>421</height>
-        </rect>
-       </property>
-      </widget>
       <widget class="QWidget" name="layoutWidget">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>450</y>
-         <width>221</width>
-         <height>25</height>
+         <y>20</y>
+         <width>258</width>
+         <height>451</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
-        </property>
+       <layout class="QVBoxLayout" name="listbarLayout">
         <item>
-         <widget class="QPushButton" name="addButton">
-          <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
+         <widget class="QListWidget" name="listWidget"/>
         </item>
         <item>
-         <widget class="QPushButton" name="delButton">
-          <property name="text">
-           <string>Del</string>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="looplistButton">
-          <property name="text">
-           <string>Play_list</string>
-          </property>
-         </widget>
+          <item>
+           <widget class="QPushButton" name="addButton">
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="delButton">
+            <property name="text">
+             <string>Del</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="looplistButton">
+            <property name="text">
+             <string>Play_list</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

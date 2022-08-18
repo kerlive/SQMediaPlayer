@@ -60,7 +60,7 @@ class Star(QWidget):
                 
     def initUI(self):
         
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setGeometry(0, 0, 500, 300)
         self.setWindowTitle('SQMedia Player')
@@ -119,6 +119,7 @@ class Main(base_1, form_1):
         self.videoLayout.addWidget(self.videoWidget)
         self.player.setVideoOutput(self.videoWidget)
 
+
         self.videoWidget.installEventFilter(self)
 
         # Layout
@@ -126,13 +127,14 @@ class Main(base_1, form_1):
         self.groupBox.setMinimumSize(451, 90)
         self.groupBox.setFixedHeight(90)
         self.groupBox_2.setFixedWidth(241)
+        self.groupBox_2.setLayout(self.listbarLayout)
 
         self.videoWidget.setMinimumSize(451, 381)
 
 
         #set can not minisize for trayicon
-        self.setWindowFlags(QtCore.Qt.Dialog)
-        self.setWhatsThis("Any you want to know in help.html")
+        self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.WindowShadeButtonHint)
+
 
 
         self.sizecontrol = 0
@@ -195,6 +197,7 @@ class Main(base_1, form_1):
         self.listcontrolButton.clicked.connect(self.list_control)
         self.scrollButton.clicked.connect(self.scroll_plane)
         self.fullscreenButton.clicked.connect(self.full_screen)
+        self.topButton.clicked.connect(self.topWidget)
 
         # loop signal
         self.loop = 0
@@ -223,12 +226,15 @@ class Main(base_1, form_1):
         self.skipbackwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipBackward))
         self.skipforwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipForward))
         self.listcontrolButton.setIcon(self.style().standardIcon(QStyle.SP_ToolBarVerticalExtensionButton))
+        self.topButton.setIcon(QtGui.QIcon(':/image/Qui/image/normal.png'))
+
     
 
 
 
         # Icon change signal
         self.pause = 0
+        self.ontop = 0
 
         # Block Button
         self.PlayButton.setEnabled(False)
@@ -268,29 +274,81 @@ class Main(base_1, form_1):
         quit.setIcon(self.style().standardIcon(QStyle.SP_BrowserStop))
         menu.addAction(quit)
 
+        self.listMenu = QMenu()
+        
+        item1 = QAction("item1",self)
+        item1.triggered.connect(lambda: print("menu item clicked"))
+
+
+
         self.trayIcon.setContextMenu(menu)
 
         self.anotherCall()
 
-    def eventFilter(self, object, event):
-
-        if object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonPress:
-            self.media_pause()
+    def listMenu_onRightClicked(self):
         
+        position = self.videoWidget.mapToGlobal(QtCore.QPoint(0, 0))
+        self.listMenu.move(position)
+        self.listMenu.show()
+
+
+
+    def eventFilter(self, object, event):
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            if object == self.videoWidget and event.button() == QtCore.Qt.RightButton:
+                print("right clicked show tool menu")
+                self.listMenu_onRightClicked()
+
+            if object == self.videoWidget and event.button() == QtCore.Qt.LeftButton:
+                self.media_pause()
+
         elif object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonDblClick:
             self.full_screen()
             
         return True
-        
+
+    def topWidget(self):
+        if self.ontop == 0 :
+            self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+            self.ontop = 1
+            self.topButton.setIcon(QtGui.QIcon(':/image/Qui/image/ontop.png'))
+            self.show()
+            
+        else:
+            self.setWindowFlags(QtCore.Qt.WindowShadeButtonHint | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+            self.ontop = 0
+            self.topButton.setIcon(QtGui.QIcon(':/image/Qui/image/normal.png'))
+            self.show()
 
     def full_screen(self):
-        if self.videoWidget.isFullScreen() == True:
-            self.videoWidget.setFullScreen(False)
+        if self.ontop == 0:
+            if self.videoWidget.isFullScreen() == False:
+                self.videoWidget.setFullScreen(True)
+            else:
+                self.videoWidget.setFullScreen(False)
         else:
-            self.videoWidget.setFullScreen(True)
+            self.ontop = -1
+            if self.videoWidget.isFullScreen() == False:
+                self.videoWidget.setFullScreen(True)
+                self.setWindowFlags(QtCore.Qt.WindowStaysOnBottomHint)
+                self.show()
+            else:
+                self.videoWidget.setFullScreen(False)
+                self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+                self.ontop = 1
+                self.show()
+                
+            
     def exc_fullScreen(self):
-        if self.videoWidget.isFullScreen() == True:
-            self.videoWidget.setFullScreen(False)
+        if self.ontop == -1:
+            if self.videoWidget.isFullScreen() == True:
+                self.videoWidget.setFullScreen(False)
+                self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
+                self.ontop = 1
+                self.show()
+        else:
+            if self.videoWidget.isFullScreen() == True:
+                self.videoWidget.setFullScreen(False)
  
 
     def scroll_plane(self):
@@ -309,9 +367,9 @@ class Main(base_1, form_1):
         cTimer.start(1000)
         cTimer.timeout.connect(self.checkNew)
     def checkNew(self):
-         if single.buf[0] == 0:
-             self.show()
-             single.buf[0] = 1
+        if single.buf[0] == 0:
+            self.show()
+            single.buf[0] = 1
     
     def trayicon_quit(self):
         sys.exit(1)
@@ -461,14 +519,17 @@ class Main(base_1, form_1):
         self.player.setVolume(self.Slider_player_volume.value())
 
     def media_pause(self):
-        if self.pause == 0:
-            self.pause = 1
-            self.player.pause()
-            self.pauseButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        if self.PlayButton.text() == "Play":
+            self.setWindowTitle("NO media is playing Now!")
         else:
-            self.pause = 0
-            self.player.play()
-            self.pauseButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))    
+            if self.pause == 0:
+                self.pause = 1
+                self.player.pause()
+                self.pauseButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+            else:
+                self.pause = 0
+                self.player.play()
+                self.pauseButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))    
         
     def media_play(self):
         if self.PlayButton.text() == "Play":

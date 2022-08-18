@@ -2,4 +2,8 @@
   <qresource prefix="Icon">
     <file>Orange_SQMP.ico</file>
   </qresource>
+  <qresource prefix="image">
+    <file>Qui/image/ontop.png</file>
+    <file>Qui/image/normal.png</file>
+  </qresource>
 </RCC>
