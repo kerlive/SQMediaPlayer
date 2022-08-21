@@ -116,25 +116,36 @@ class Main(base_1, form_1):
         self.player = QMediaPlayer()
         
         self.videoWidget = QVideoWidget()
-        self.videoLayout.addWidget(self.videoWidget)
         self.player.setVideoOutput(self.videoWidget)
-
-
         self.videoWidget.installEventFilter(self)
+        
 
         # Layout
         self.setLayout(self.allinLayout)
-        self.groupBox.setMinimumSize(451, 90)
-        self.groupBox.setFixedHeight(90)
+        self.controlBox.setMinimumSize(451, 90)
+        self.controlBox.setFixedHeight(5)
         self.groupBox_2.setFixedWidth(241)
         self.groupBox_2.setLayout(self.listbarLayout)
 
         self.videoWidget.setMinimumSize(451, 381)
 
+    
+        self.iconPage = QWidget()
+        self.icon = QLabel()
+        self.icon.setStyleSheet("background-image : url(:/Icon/Orange_SQMP.ico); background-repeat: no repeat; background-position: center;")
+        self.iconlayout = QGridLayout()
+        self.iconlayout.addWidget(self.icon)
+        self.iconPage.setLayout(self.iconlayout)
+        self.iconPage.setStyleSheet("background-color: qlineargradient(spread:pad, x1:0.159045, y1:0.614, x2:1, y2:0, stop:0.409091 rgba(85, 255, 255, 232), stop:1 rgba(85, 170, 255, 255));")
+        self.videoLayout.addWidget(self.iconPage)
+
+        self.videoWidget.hide()
+        self.videoLayout.addWidget(self.videoWidget)
+        
+
 
         #set can not minisize for trayicon
         self.setWindowFlags(QtCore.Qt.Window | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.WindowShadeButtonHint)
-
 
 
         self.sizecontrol = 0
@@ -183,7 +194,7 @@ class Main(base_1, form_1):
         self.muteButton.clicked.connect(self.volumeMute)
         self.Slider_player_volume.valueChanged.connect(self.volumeUpdate)
         self.Slider_player_volume.setValue(80)
-        self.horizontalSlider.sliderReleased.connect(self.slider_moved)
+        self.timeSlider.sliderReleased.connect(self.slider_moved)
         self.seekforwardButton.clicked.connect(self.move_forward)
         self.seekbackwardButton.clicked.connect(self.move_backward)
         self.addButton.clicked.connect(self.listAdd)
@@ -285,21 +296,28 @@ class Main(base_1, form_1):
 
         self.anotherCall()
 
+
+        self.controlBox.installEventFilter(self)
+
     def listMenu_onRightClicked(self):
         
         position = self.videoWidget.mapToGlobal(QtCore.QPoint(0, 0))
         self.listMenu.move(position)
         self.listMenu.show()
 
-
+    
 
     def eventFilter(self, object, event):
-        if event.type() == QtCore.QEvent.MouseButtonPress:
-            if object == self.videoWidget and event.button() == QtCore.Qt.RightButton:
+        if object == self.controlBox and event.type() == QtCore.QEvent.Enter:
+            self.controlBox.setFixedHeight(90)
+        if object ==  self.controlBox and event.type() == QtCore.QEvent.Leave:
+            self.controlBox.setFixedHeight(5)
+        if object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonPress:
+            if event.button() == QtCore.Qt.RightButton:
                 print("right clicked show tool menu")
                 self.listMenu_onRightClicked()
 
-            if object == self.videoWidget and event.button() == QtCore.Qt.LeftButton:
+            if event.button() == QtCore.Qt.LeftButton:
                 self.media_pause()
 
         elif object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonDblClick:
@@ -323,7 +341,7 @@ class Main(base_1, form_1):
     def full_screen(self):
         if self.ontop == 0:
             if self.videoWidget.isFullScreen() == False:
-                self.videoWidget.setFullScreen(True)
+                self.videoWidget.setFullScreen(True)              
             else:
                 self.videoWidget.setFullScreen(False)
         else:
@@ -436,38 +454,42 @@ class Main(base_1, form_1):
             self.soundtrack.setPlaybackMode(QMediaPlaylist.CurrentItemOnce)
 
     def skip_forward(self):
-        self.set_position(self.horizontalSlider.maximum())
+        self.set_position(self.timeSlider.maximum())
     def skip_backward(self):
         self.set_position(0)
     def move_forward(self):
-        self.set_position(self.horizontalSlider.sliderPosition()+15000)
+        self.set_position(self.timeSlider.sliderPosition()+15000)
     def move_backward(self):
-        self.set_position(self.horizontalSlider.sliderPosition()-15000)
+        self.set_position(self.timeSlider.sliderPosition()-15000)
     
     def slider_moved(self):
-        self.set_position(self.horizontalSlider.value())
+        self.set_position(self.timeSlider.value())
 
     def set_position(self, position):
         self.player.setPosition(position)
 
     def duration_changed(self, duration):
-        self.horizontalSlider.setRange(0, duration)
+        self.timeSlider.setRange(0, duration)
 
     def position_changed(self, position):
-        self.horizontalSlider.setValue(position)
+        self.timeSlider.setValue(position)
 
     def show_mediaState(self):
         match self.player.state():
             case 1:
                 self.setWindowTitle("Media Playing")
+                self.iconPage.hide()
+                self.videoWidget.show()
             case 2:
                 self.setWindowTitle("Media Paused")
             case 0:
                 self.setWindowTitle("Small Media Player")
-                self.horizontalSlider.setValue(0)
+                self.timeSlider.setValue(0)
                 self.label_time.setText("00:00:00/00:00:00")
                 self.PlayButton.setText("Play")
                 self.PlayButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+                self.videoWidget.hide()
+                self.iconPage.show()
 
 
     def Media_del(self):
