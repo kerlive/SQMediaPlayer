@@ -8,4 +8,10 @@ if __name__ == '__main__':
     demo = Star()
     demo.show()
     
+    if len(sys.argv) != 1:
+        media = []
+        for i in range(len(sys.argv)):
+            media += sys.argv[i]
+        print("play meida")
+
     sys.exit(app.exec_())
