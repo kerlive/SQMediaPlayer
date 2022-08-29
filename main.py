@@ -4,14 +4,18 @@ import UIresource_rc
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    demo = Star()
-    demo.show()
-    
-    if len(sys.argv) != 1:
-        media = []
-        for i in range(len(sys.argv)):
-            media += sys.argv[i]
-        print("play meida")
+    if len(sys.argv) == 2:
+        media = sys.argv[1]
+        app = QApplication(sys.argv)
+        demo = Main()
+        demo.show()
+        demo.play_arg(media)
+
+    else:
+
+        app = QApplication(sys.argv)
+        demo = Star()
+        demo.show()
+
 
     sys.exit(app.exec_())

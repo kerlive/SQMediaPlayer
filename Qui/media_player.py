@@ -5,7 +5,7 @@ __copyright__ = "Copyright (C) 2022 Kevin Chan"
 __license__ = "GPL-3.0"
 __version__ = "0.1.0"
 
-import os, sys, random
+import os, sys, random, csv
 import datetime
 from multiprocessing import shared_memory
 key = "SQMediaPlayer"
@@ -212,7 +212,7 @@ class Main(base_1, form_1):
         self.loop = 0
         self.listloop = 0
 
-        self.list_Media()
+
 
 
         # Media player signals
@@ -237,9 +237,11 @@ class Main(base_1, form_1):
         self.listcontrolButton.setIcon(self.style().standardIcon(QStyle.SP_ToolBarVerticalExtensionButton))
         self.topButton.setIcon(QtGui.QIcon(':/image/Qui/image/normal.png'))
 
-    
-
-
+        # list media path and name
+        self.mediaList = []
+        self.mediaPath = []
+        self.loadList()
+        self.list_Media()
 
         # Icon change signal
         self.pause = 0
@@ -300,6 +302,33 @@ class Main(base_1, form_1):
 
         self.controlBox.installEventFilter(self)
 
+        self.setAcceptDrops(True)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        pathText = event.mimeData().text()
+        type = ['.avi','.mp4','.mkv','.mov','.wmv','.flv']        
+        for n, filtration in enumerate( (event.mimeData().text()).split('\n') ):
+            if filtration != '' and (os.path.splitext(filtration)[-1] in type):
+                self.mediaPath.append(filtration.replace('file:///', ''))
+                self.mediaList.append(os.path.basename(filtration.replace('file:///', '')))
+        self.list_Media()
+
+    def loadList(self):
+        if os.path.exists('filelist.lmnop') == True:
+            with open('filelist.lmnop', 'r') as file:
+                reader = csv.reader(file)
+                for  n, row in enumerate(reader):
+                    if n == 0:
+                        self.mediaList = row
+                    if n == 2:
+                        self.mediaPath = row
+
     def listMenu_onRightClicked(self):
         
         position = self.videoWidget.mapToGlobal(QtCore.QPoint(0, 0))
@@ -323,8 +352,11 @@ class Main(base_1, form_1):
             self.show()
 
     def appQuit(self):
-        sys.exit(1)
+        with open("filelist.lmnop", "w") as File:
+            csv.writer(File, delimiter=',', quotechar='"', quoting= csv.QUOTE_MINIMAL).writerow(self.mediaList)
+            csv.writer(File, delimiter=',', quotechar='"', quoting= csv.QUOTE_MINIMAL).writerow(self.mediaPath)
 
+        sys.exit(1)
 
     def closeEvent(self,event):
         msg = QMessageBox(self)
@@ -334,7 +366,9 @@ class Main(base_1, form_1):
         msg.setDefaultButton(QMessageBox.Cancel)
         hide = msg.button(QMessageBox.No)
         hide.setText('Hide')
-        msg.setInformativeText("Choose App Exit or Hide you want ......")
+        close = msg.button(QMessageBox.Yes)
+        close.setText('Exit')
+        msg.setInformativeText("Choose Close App or Hide ......")
         result = msg.exec_()
 
         event.ignore()
@@ -420,8 +454,8 @@ class Main(base_1, form_1):
         
 
     def Media_add(self):
-        name = self.listWidget.currentItem().text()
-        sound_path =  os.path.dirname(os.path.abspath(__name__)) + "/Media/" + name
+
+        sound_path = self.mediaPath[self.listWidget.currentRow()]
         url = QtCore.QUrl.fromLocalFile(sound_path)
         content = QMediaContent(url)
         self.soundtrack = QMediaPlaylist()
@@ -435,9 +469,9 @@ class Main(base_1, form_1):
     
     def list_charge(self):
         self.soundtrack_list = QMediaPlaylist()
-        name_list = os.listdir(os.getcwd()+"/Media/")
-        for n,name in enumerate(name_list):
-            url = QtCore.QUrl.fromLocalFile(os.getcwd()+"/Media/"+name)
+
+        for n,name in enumerate(self.mediaPath):
+            url = QtCore.QUrl.fromLocalFile(name)
             content = QMediaContent(url)
             self.soundtrack_list.addMedia(content)
 
@@ -507,9 +541,6 @@ class Main(base_1, form_1):
             case 0:
                 self.setWindowTitle("Small Media Player")
                 self.timeSlider.setValue(0)
-                self.label_time.setText("00:00:00/00:00:00")
-                self.PlayButton.setText("Play")
-                self.PlayButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
                 self.videoWidget.hide()
                 self.iconPage.show()
 
@@ -518,24 +549,24 @@ class Main(base_1, form_1):
         if self.listWidget.currentRow() == -1:
             self.setWindowTitle("NO Media select in List")
         else:
-            name = self.listWidget.currentItem().text()
-            Dpath = os.path.dirname(os.path.abspath(__name__))+"\Media/"+name
-            os.remove(Dpath)
-            self.listWidget.clear()
+            index = self.listWidget.currentRow()
+            self.mediaPath.pop(index)
+            self.mediaList.pop(index)
             self.list_Media()
 
     def listAdd(self):
         ADD = QFileDialog()
-        MFile = ADD.getOpenFileName(self,"Add New Media", "","Media Files(*.mp4 *.avi *.mkv *.mov *.wmv *.flv)")
-        Mname = os.path.split(MFile[0])
-        QtCore.QFile.copy(MFile[0],"./Media/"+Mname[1])
-        self.listWidget.clear()
+        MFile = ADD.getOpenFileNames(self,"Add New Media", "","Media Files(*.mp4 *.avi *.mkv *.mov *.wmv *.flv)")
+
+        for n in range(len(MFile[0])):
+            path = MFile[0][n]
+            self.mediaPath.append(path)
+            self.mediaList.append(os.path.split(path)[1])
         self.list_Media()
 
     def list_Media(self):
-        Media_path = os.path.dirname(os.path.abspath(__name__)) + "/Media"
-        dir_list = os.listdir(Media_path)
-        for m in dir_list:
+        self.listWidget.clear()
+        for m in self.mediaList:
             self.listWidget.addItem(m)
     
     def media_position(self):
@@ -594,9 +625,9 @@ class Main(base_1, form_1):
             self.pauseButton.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))   
 
             self.time.stop()
-            self.label_time.setText("00:00:00/00:00:00")
+            self.label_time.setText("--:--:-- / --:--:--")
 
-    def event(self, event):
-        if event.type() == QtCore.QEvent.EnterWhatsThisMode:
-            QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(os.getcwd()+"/Help/help.html"))
-        return super().event(event)
+    def play_arg(self, argval):
+        print(argval)
+        print("add list: [-1]:")
+        print("media_play()")

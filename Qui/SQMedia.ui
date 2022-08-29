@@ -94,7 +94,7 @@
             </rect>
            </property>
            <property name="text">
-            <string>00:00:00/00:00:00</string>
+            <string>--:--:-- / --:--:--</string>
            </property>
           </widget>
           <widget class="QPushButton" name="pauseButton">
