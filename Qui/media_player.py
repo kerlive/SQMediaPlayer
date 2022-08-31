@@ -213,8 +213,6 @@ class Main(base_1, form_1):
         self.listloop = 0
 
 
-
-
         # Media player signals
         self.player.stateChanged.connect(self.show_mediaState)
         self.player.positionChanged.connect(self.position_changed)
@@ -229,7 +227,7 @@ class Main(base_1, form_1):
         self.loopButton.setIcon(self.style().standardIcon(QStyle.SP_BrowserReload))
         self.looplistButton.setIcon(self.style().standardIcon(QStyle.SP_DriveCDIcon))
         self.addButton.setIcon(self.style().standardIcon(QStyle.SP_FileDialogNewFolder))
-        self.delButton.setIcon(self.style().standardIcon(QStyle.SP_DialogDiscardButton))
+        self.delButton.setIcon(self.style().standardIcon(QStyle.SP_TrashIcon))
         self.seekbackwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekBackward))
         self.seekforwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSeekForward))
         self.skipbackwardButton.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipBackward))
@@ -289,14 +287,16 @@ class Main(base_1, form_1):
         quit.setIcon(self.style().standardIcon(QStyle.SP_DialogCloseButton))
         menu.addAction(quit)
 
-        self.listMenu = QMenu()
-        
-        item1 = QAction("item1",self)
-        item1.triggered.connect(lambda: print("menu item clicked"))
-
-
-
         self.trayIcon.setContextMenu(menu)
+
+        # add a action for clear player list
+        self.listWidget.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        clear = QAction("Clear (all delete)", self.listWidget)
+        clear.setIcon(self.style().standardIcon(QStyle.SP_DialogResetButton))
+        clear.triggered.connect(self.clearList)
+        self.listWidget.addAction(clear)
+    
+
 
         self.anotherCall()
 
@@ -304,36 +304,13 @@ class Main(base_1, form_1):
 
         self.setAcceptDrops(True)
 
-    def dragEnterEvent(self, event):
-        if event.mimeData().hasUrls:
-            event.accept()
-        else:
-            event.ignore()
 
-    def dropEvent(self, event):
-        pathText = event.mimeData().text()
-        type = ['.avi','.mp4','.mkv','.mov','.wmv','.flv']        
-        for n, filtration in enumerate( (event.mimeData().text()).split('\n') ):
-            if filtration != '' and (os.path.splitext(filtration)[-1] in type):
-                self.mediaPath.append(filtration.replace('file:///', ''))
-                self.mediaList.append(os.path.basename(filtration.replace('file:///', '')))
-        self.list_Media()
 
-    def loadList(self):
-        if os.path.exists('filelist.lmnop') == True:
-            with open('filelist.lmnop', 'r') as file:
-                reader = csv.reader(file)
-                for  n, row in enumerate(reader):
-                    if n == 0:
-                        self.mediaList = row
-                    if n == 2:
-                        self.mediaPath = row
-
-    def listMenu_onRightClicked(self):
-        
-        position = self.videoWidget.mapToGlobal(QtCore.QPoint(0, 0))
-        self.listMenu.move(position)
-        self.listMenu.show()
+    def onTrayIconActivated(self, reason):
+        if reason == QSystemTrayIcon.DoubleClick:
+            self.hide()
+        if reason == QSystemTrayIcon.Trigger:
+            self.show()
 
     def anotherCall(self):
         cTimer = QtCore.QTimer(self)
@@ -344,12 +321,6 @@ class Main(base_1, form_1):
         if single.buf[0] == 0:
             self.show()
             single.buf[0] = 1
-    
-    def onTrayIconActivated(self, reason):
-        if reason == QSystemTrayIcon.DoubleClick:
-            self.hide()
-        if reason == QSystemTrayIcon.Trigger:
-            self.show()
 
     def appQuit(self):
         with open("filelist.lmnop", "w") as File:
@@ -357,6 +328,9 @@ class Main(base_1, form_1):
             csv.writer(File, delimiter=',', quotechar='"', quoting= csv.QUOTE_MINIMAL).writerow(self.mediaPath)
 
         sys.exit(1)
+
+
+### EVENT area -------------
 
     def closeEvent(self,event):
         msg = QMessageBox(self)
@@ -383,18 +357,83 @@ class Main(base_1, form_1):
             self.controlBox.setFixedHeight(90)
         if object ==  self.controlBox and event.type() == QtCore.QEvent.Leave:
             self.controlBox.setFixedHeight(5)
-        if object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonPress:
-            if event.button() == QtCore.Qt.RightButton:
-                print("right clicked show tool menu")
-                self.listMenu_onRightClicked()
+        
+        # videoWidget
+        if object == self.videoWidget and event.type() == QtCore.QEvent.ContextMenu:
 
+            menu = QMenu(self.videoWidget)
+            leave  = menu.addAction("Leave Fullscreen")
+            leave.setIcon(self.style().standardIcon(QStyle.SP_DesktopIcon))
+
+            menu.addSeparator()
+            reload = menu.addAction("Previous")
+            reload.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipBackward))
+            next = menu.addAction("Next")
+            next.setIcon(self.style().standardIcon(QStyle.SP_MediaSkipForward))
+            menu.addSeparator()
+            quit = menu.addAction("Exit App")
+            quit.setIcon(self.style().standardIcon(QStyle.SP_DialogCloseButton))
+
+            if self.videoWidget.isFullScreen() == True:
+                leave.setVisible(True)
+                action = menu.exec_(event.pos())
+            else:
+                leave.setVisible(False)
+                action = menu.exec_(self.mapToGlobal(event.pos()))
+
+
+            if action == quit:
+                self.appQuit()
+            if action == next:
+                self.skip_forward()
+            if action == reload:
+                self.skip_backward()
+            if action == leave:
+                self.exc_fullScreen()
+
+            # video size, soundtrack and subtitle and so on ....
+            
+        if object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonPress:
+            #if event.button() == QtCore.Qt.RightButton:
             if event.button() == QtCore.Qt.LeftButton:
                 self.media_pause()
-
         elif object == self.videoWidget and event.type() == QtCore.QEvent.MouseButtonDblClick:
             self.full_screen()
-            
+
         return True
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls:
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        pathText = event.mimeData().text()
+        type = ['.avi','.mp4','.mkv','.mov','.wmv','.flv']        
+        for n, filtration in enumerate( (event.mimeData().text()).split('\n') ):
+            if filtration != '' and (os.path.splitext(filtration)[-1] in type):
+                self.mediaPath.append(filtration.replace('file:///', ''))
+                self.mediaList.append(os.path.basename(filtration.replace('file:///', '')))
+        self.list_Media()
+
+### PLAYER control area ----------
+
+    def clearList(self):
+        self.listWidget.clear()
+        self.mediaPath.clear()
+        self.mediaList.clear()
+
+    def loadList(self):
+        if os.path.exists('filelist.lmnop') == True:
+            with open('filelist.lmnop', 'r') as file:
+                reader = csv.reader(file)
+                for  n, row in enumerate(reader):
+                    if n == 0:
+                        self.mediaList = row
+                    if n == 2:
+                        self.mediaPath = row
+
 
     def topWidget(self):
         if self.ontop == 0 :
